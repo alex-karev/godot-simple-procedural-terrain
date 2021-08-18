@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://SimplePCGTerrain.gd" type="Script" id=1]
+[ext_resource path="res://Example/Example.png" type="Texture" id=2]
+[ext_resource path="res://Example/SimpleGenerator.gd" type="Script" id=3]
+
+[sub_resource type="OpenSimplexNoise" id=2]
+octaves = 6
+period = 20.0
+
+[sub_resource type="SpatialMaterial" id=1]
+albedo_texture = ExtResource( 2 )
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.702203, 0.711977, 0, -0.711977, 0.702203, 0, 30.21, 36.1272 )
+current = true
+size = 120.0
+
+[node name="SimpleTerrainGenerator" type="Node" parent="."]
+script = ExtResource( 3 )
+noise = SubResource( 2 )
+
+[node name="PCGTerrain" type="MeshInstance" parent="."]
+material_override = SubResource( 1 )
+script = ExtResource( 1 )
+generatorNode = NodePath("../SimpleTerrainGenerator")
+valueFunction = "get_value"
+heightFunction = "get_height"
+offset = Vector3( -25, 0, -25 )
+
+[node name="Label" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -512.0
+margin_top = -48.0
+margin_right = 512.0
+text = "Press \"ENTER\" to generate new terrain
+
+"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
