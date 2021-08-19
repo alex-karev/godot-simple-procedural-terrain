@@ -23,9 +23,9 @@ script = ExtResource( 3 )
 noise = SubResource( 1 )
 
 [node name="PCGTerrain" type="MeshInstance" parent="."]
-material_override = SubResource( 2 )
 script = ExtResource( 1 )
 generatorNode = NodePath("../SimpleTerrainGenerator")
+material = SubResource( 2 )
 offset = Vector3( -25, 0, -25 )
 
 [node name="Label" type="Label" parent="."]

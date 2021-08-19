@@ -10,14 +10,17 @@ export var terrainSize: Vector2 = Vector2(50,50)
 export var marchingSquares: bool = true
 # Physics
 export var addCollision: bool = true
+# Material
+export var material: Material
 # Tilemap
 export var tilemapSize: Vector2 = Vector2(2,2)
-export var tileSize: Vector2 = Vector2(16,16)
 # Additional
 export var offset: Vector3 = Vector3(-0.5,0,-0.5)
 
-var origin2d: Vector2
 var generator
+
+var origin2d: Vector2
+
 
 
 # Trigs for each cell
@@ -67,7 +70,8 @@ var cell = PoolRealArray([
 # Connect to generator and start mesh generation
 func _ready():
 	origin2d = Vector2(global_transform.origin.x, global_transform.origin.z)
-	generator = get_node(generatorNode)
+	if not generator:
+		generator = get_node(generatorNode)
 	generate()
 
 #
@@ -264,6 +268,10 @@ func generate():
 	# Create new SurfaceTool
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	# Set material
+	if material:
+		st.set_material(material)
 	
 	# Change grid size (for marching cubes)
 	var newGridSize = gridSize
