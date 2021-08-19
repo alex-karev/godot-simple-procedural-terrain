@@ -14,6 +14,7 @@ export var addCollision: bool = true
 export var material: Material
 # Tilesheet
 export var tilesheetSize: Vector2 = Vector2(2,2)
+export var tileMargin: Vector2 = Vector2(0.01,0.01)
 # Additional
 export var offset: Vector3 = Vector3(-0.5,0,-0.5)
 
@@ -281,6 +282,7 @@ func generate():
 	# Calculate cell size
 	var cellSize = Vector3(terrainSize.x/newGridSize.x, 1, terrainSize.y/newGridSize.y)
 	var textureSize = Vector2.ONE/tilesheetSize
+	var tileSize = Vector2.ONE - tileMargin
 	
 	# Loop through grid
 	for y in int(newGridSize.y):
@@ -322,8 +324,9 @@ func generate():
 				var uvPos = Vector2.ZERO
 				uvPos.y = floor(trigValue/tilesheetSize.x)
 				uvPos.x = trigValue - uvPos.y*tilesheetSize.x
+				uvPos += tileMargin/2
 				# Add vertex
-				st.add_uv(Vector2(vert.x,vert.z)*textureSize+uvPos*textureSize)
+				st.add_uv(Vector2(vert.x,vert.z)*tileSize*textureSize+uvPos*textureSize)
 				var vertex = (vert+cellPos+offset)*cellSize
 				st.add_vertex(vertex)
 				faces.append(vertex)

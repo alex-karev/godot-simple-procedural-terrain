@@ -27,6 +27,7 @@ A new class called SimplePCGTerrain can be found in "Create New Node" menu under
 | marchingSquares | bool | Enable/Disable marching squares |
 | addCollision | bool | Enable/Disable StaticBody generation |
 | tilesheetSize | Vector2 | A number of horizontal and verical elements on tilesheet |
+| tileMargin | Vector2 | Margin around each tile (for fixing floating point errors) |
 | material | Material | A material to be used for terrain mesh. **Tilesheet can be attached to it as albedo texture** |
 | offset | Vector3 | An offset to be applied for mesh |
 | generator | Node | Generator node. *Is not displayed in Inspector*. Being set automatically if generatorNode specified. Might be set manually beforer adding terrain to the scene |
