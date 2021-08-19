@@ -7,7 +7,7 @@ while you can focus on writing a good generator script
 <img src="https://i.imgur.com/K75yMkr.gif"/>
 
 * Does **not** generate terrain by itself. Instead, it uses your own **custom generator node**, which makes it easier to focus on logic
-* Uses grid system and **tilemaps**
+* Uses a **tilesheet**
 * Height and tile index can be defined separately, which enables **multiple biomes** support
 * Has 2 generation modes: with and without using **marching squares**
 * 100% **GDscript**
@@ -26,8 +26,8 @@ A new class called SimplePCGTerrain can be found in "Create New Node" menu under
 | terrainSize | Vector2 | A scale of the terrain |
 | marchingSquares | bool | Enable/Disable marching squares |
 | addCollision | bool | Enable/Disable StaticBody generation |
-| tilemapSize | Vector2 | A number of horizontal and verical elements of tilemap |
-| material | Material | A material to be used for terrain mesh. **Tilemap can be attached to it as albedo texture** |
+| tilesheetSize | Vector2 | A number of horizontal and verical elements on tilesheet |
+| material | Material | A material to be used for terrain mesh. **Tilesheet can be attached to it as albedo texture** |
 | offset | Vector3 | An offset to be applied for mesh |
 | generator | Node | Generator node. *Is not displayed in Inspector*. Being set automatically if generatorNode specified. Might be set manually beforer adding terrain to the scene |
 
@@ -36,10 +36,10 @@ Can be any type of node. A script attached to it should have these 2 functions:
 
 | Type | Function | Description |
 | --- | --- | --- |
-|int | get_value(pos: *Vector2*) | returns an index of a tile on the tilemap in a given position |
+|int | get_value(pos: *Vector2*) | returns an index of a tile on the tilesheet in a given position |
 |float | get_height(pos: *Vector2*) | returns a height of the terrain in a given position |
 
-### Tilemap
+### Tilesheet
 Tile indexes are given from 0 to n in a following order:
 
 
@@ -48,7 +48,7 @@ Tile indexes are given from 0 to n in a following order:
 | **Row 1** | 0 | 1 | 2 |
 | **Row 2** | 3 | 4 | 5 |
 
-A number of rows and columns can be specified using tilemapSize variable
+A number of rows and columns can be specified using tilesheetSize variable
 
 
 ### Example

@@ -12,8 +12,8 @@ export var marchingSquares: bool = true
 export var addCollision: bool = true
 # Material
 export var material: Material
-# Tilemap
-export var tilemapSize: Vector2 = Vector2(2,2)
+# Tilesheet
+export var tilesheetSize: Vector2 = Vector2(2,2)
 # Additional
 export var offset: Vector3 = Vector3(-0.5,0,-0.5)
 
@@ -280,7 +280,7 @@ func generate():
 	
 	# Calculate cell size
 	var cellSize = Vector3(terrainSize.x/newGridSize.x, 1, terrainSize.y/newGridSize.y)
-	var textureSize = Vector2.ONE/tilemapSize
+	var textureSize = Vector2.ONE/tilesheetSize
 	
 	# Loop through grid
 	for y in int(newGridSize.y):
@@ -320,7 +320,7 @@ func generate():
 				var trigValue = trigValues[trigIndex]
 				# Calculate UV
 				var uvPos = Vector2.ZERO
-				uvPos.y = floor(trigValue/tilemapSize.y)
+				uvPos.y = floor(trigValue/tilesheetSize.y)
 				uvPos.x = uvPos.y + trigValue - uvPos.y
 				# Add vertex
 				st.add_uv(Vector2(vert.x,vert.z)*textureSize+uvPos*textureSize)
