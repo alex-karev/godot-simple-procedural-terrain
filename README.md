@@ -21,10 +21,6 @@ With this tool a game programmer can skip this part and focus more on map genera
 A new class called SimplePCGTerrain can be found in "Create New Node" menu, but it also can be added to the scene from another script. There are some parameters to set:
 
 * Generator Node: *String* - A path to your custom generator node.
-* Value Function: *String* - A name of the function of generator node, that returns an *integer* value based on *Vector2* **position**.
-A value is an index of tile on a tilemap. If ignored, tile 0 will be always used
-* Height Function: *String* - A name of the function of generator node, that returns an *float* **height** based on *Vector2* **position**.
-If ignored a terrain will be flat
 * Grid Size: *Vector2* - A number of cells which terrain consists of
 * Terrain Size: *Vector2* - A scale of terrain
 * Marching Squares: *bool* - Whether to use or not to use marching squares algorithm
@@ -36,11 +32,11 @@ If ignored a terrain will be flat
 **REMEMBER** to create a new material in "Material Override" and attach your tilemap to it as an albedo texture
 
 ### Generator Node
-Can be any type of node. A script attached to it should have 2 functions:
+Can be any type of node. A script attached to it should have these 2 functions:
 
-* Value Function - takes *Vector2* position as an argument and returns *integer* value which is an index of tile on the tilemap
-* Height Function - takes *Vector2* position as an argument and returns *float*, which is a height of terrain in given position
-
+int | get_value(pos: *Vector2*) | returns an index of a tile on the tilemap in a given position
+float | get_height(pos: *Vector2*) | returns a height of the terrain in a given position
+ 
 **A very simple example of usage can be found in "Example" directory**
 
 ## License

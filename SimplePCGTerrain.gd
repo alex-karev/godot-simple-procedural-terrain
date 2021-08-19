@@ -4,8 +4,6 @@ class_name SimplePCGTerrain
 
 # Generator
 export(NodePath) var generatorNode
-export var valueFunction: String
-export var heightFunction: String
 # Grid and terrain size
 export var gridSize: Vector2 = Vector2(51,51)
 export var terrainSize: Vector2 = Vector2(50,50)
@@ -285,19 +283,19 @@ func generate():
 			# Define trig values
 			var trigValues = PoolIntArray()
 			# Generate values using marching cubes
-			if marchingSquares and valueFunction:
+			if marchingSquares and generator.has_method("get_value"):
 				var corners = PoolIntArray()
 				var cornerVectors = PoolVector2Array([
 					cellPos2d, cellPos2d+Vector2(1,0),
 					cellPos2d+Vector2(0,1), cellPos2d+Vector2(1,1)
 				])
 				for v in cornerVectors:
-					corners.append(generator.call(valueFunction,v+origin2d))
+					corners.append(generator.get_value(v+origin2d))
 				trigValues = get_trigs_marching(corners)
 			# Generate values using grid
 			else:
 				var value = 0
-				if valueFunction:
+				if generator.has_method("get_value"):
 					value = generator.get_value(cellPos2d+origin2d)
 				trigValues = get_trigs(value)
 		
@@ -305,10 +303,10 @@ func generate():
 			for i in int(cell.size()/2):
 				var vert = Vector3(cell[i*2], 0, cell[i*2+1])
 				# Add height
-				if heightFunction:
+				if generator.has_method("get_height"):
 					var vert2d = Vector2(vert.x,vert.z)
 					var vertPos2d = vert2d + cellPos2d
-					vert.y = generator.call(heightFunction, vertPos2d+origin2d)
+					vert.y = generator.get_height(vertPos2d+origin2d)
 				# Find value
 				var trigIndex = floor(i/3)
 				var trigValue = trigValues[trigIndex]

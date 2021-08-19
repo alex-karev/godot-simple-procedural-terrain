@@ -26,8 +26,6 @@ noise = SubResource( 1 )
 material_override = SubResource( 2 )
 script = ExtResource( 1 )
 generatorNode = NodePath("../SimpleTerrainGenerator")
-valueFunction = "get_value"
-heightFunction = "get_height"
 offset = Vector3( -25, 0, -25 )
 
 [node name="Label" type="Label" parent="."]
