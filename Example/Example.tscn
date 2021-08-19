@@ -4,11 +4,11 @@
 [ext_resource path="res://Example/Example.png" type="Texture" id=2]
 [ext_resource path="res://Example/SimpleGenerator.gd" type="Script" id=3]
 
-[sub_resource type="OpenSimplexNoise" id=2]
+[sub_resource type="OpenSimplexNoise" id=1]
 octaves = 6
 period = 20.0
 
-[sub_resource type="SpatialMaterial" id=1]
+[sub_resource type="SpatialMaterial" id=2]
 albedo_texture = ExtResource( 2 )
 
 [node name="Spatial" type="Spatial"]
@@ -20,10 +20,10 @@ size = 120.0
 
 [node name="SimpleTerrainGenerator" type="Node" parent="."]
 script = ExtResource( 3 )
-noise = SubResource( 2 )
+noise = SubResource( 1 )
 
 [node name="PCGTerrain" type="MeshInstance" parent="."]
-material_override = SubResource( 1 )
+material_override = SubResource( 2 )
 script = ExtResource( 1 )
 generatorNode = NodePath("../SimpleTerrainGenerator")
 valueFunction = "get_value"
