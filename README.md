@@ -42,9 +42,11 @@ Can be any type of node. A script attached to it should have these 2 functions:
 ### Tilemap
 Tile indexes are given from 0 to n in a following order:
 
-| 0 | 1 | 2 |
-| 3 | 4 | 5 |
-| ... | ... | ... |
+
+|     | Col 1 | Col 2 | Col 3 |
+| --- | --- | --- | --- |
+| **Row 1** | 0 | 1 | 2 |
+| **Row 2** | 3 | 4 | 5 |
 
 A number of rows and columns can be specified using tilemapSize variable
 
