@@ -5,7 +5,6 @@ It does all the hard job of generating a mesh with normals, UVs and collision sh
 while end-user can focus on writing a good generator script
 
 <img src="https://i.imgur.com/K75yMkr.gif"/>
-[GIF](https://i.imgur.com/K75yMkr.gifv)
 
 * Does **not** generate terrain by itself. Instead, it can be connected to a **custom generator node**,
 making it easier to focus on logic
