@@ -320,15 +320,15 @@ func generate():
 				var trigValue = trigValues[trigIndex]
 				# Calculate UV
 				var uvPos = Vector2.ZERO
-				uvPos.y = floor(trigValue/tilesheetSize.y)
-				uvPos.x = uvPos.y + trigValue - uvPos.y
+				uvPos.y = floor(trigValue/tilesheetSize.x)
+				uvPos.x = trigValue - uvPos.y*tilesheetSize.x
 				# Add vertex
 				st.add_uv(Vector2(vert.x,vert.z)*textureSize+uvPos*textureSize)
 				var vertex = (vert+cellPos+offset)*cellSize
 				st.add_vertex(vertex)
 				faces.append(vertex)
 				
-	# Generate normals and tangents
+	# Generate normals and tangents"res://Example/Example.png"
 	st.generate_normals()
 	st.generate_tangents()
 	
