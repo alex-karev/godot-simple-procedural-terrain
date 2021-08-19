@@ -34,8 +34,10 @@ A new class called SimplePCGTerrain can be found in "Create New Node" menu, but 
 ### Generator Node
 Can be any type of node. A script attached to it should have these 2 functions:
 
-int | get_value(pos: *Vector2*) | returns an index of a tile on the tilemap in a given position
-float | get_height(pos: *Vector2*) | returns a height of the terrain in a given position
+| Type | Function | Description |
+| --- | --- | --- |
+|int | get_value(pos: *Vector2*) | returns an index of a tile on the tilemap in a given position |
+|float | get_height(pos: *Vector2*) | returns a height of the terrain in a given position |
  
 **A very simple example of usage can be found in "Example" directory**
 
