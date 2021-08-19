@@ -4,7 +4,8 @@ A tool that helps to generate terrains using your own generator script.
 It does all the hard job of generating a mesh with normals, UVs and collision shape,
 while end-user can focus on writing a good generator script
 
-[Imgur](https://i.imgur.com/K75yMkr.gifv)
+<img src="https://i.imgur.com/K75yMkr.gif"/>
+[GIF](https://i.imgur.com/K75yMkr.gifv)
 
 * Does **not** generate terrain by itself. Instead, it can be connected to a **custom generator node**,
 making it easier to focus on logic
