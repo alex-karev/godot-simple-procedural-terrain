@@ -23,6 +23,7 @@ var generator
 var origin2d: Vector2
 
 
+
 # Quad corners
 const cornerVectors = PoolVector2Array([
 	Vector2.ZERO, Vector2(1,0),
@@ -77,7 +78,8 @@ func _ready():
 	origin2d = Vector2(global_transform.origin.x, global_transform.origin.z)
 	if not generator:
 		generator = get_node(generatorNode)
-	generate()
+	if not mesh:
+		generate()
 
 #
 # Utility Functions

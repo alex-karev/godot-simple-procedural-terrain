@@ -32,6 +32,8 @@ A new class called SimplePCGTerrain can be found in "Create New Node" menu under
 | offset | Vector3 | An offset to be applied for mesh |
 | generator | Node | Generator node. *Is not displayed in Inspector*. Being set automatically if generatorNode specified. Might be set manually beforer adding terrain to the scene |
 
+By default mesh is generated when SimplePCGTerrain node is added to scene. However, mesh can also be generated in advance by calling generate() function
+
 ### Generator Node
 Can be any type of node. A script attached to it should have these 2 functions:
 
