@@ -23,11 +23,15 @@ var generator
 var origin2d: Vector2
 
 
-
+# Quad corners
+const cornerVectors = PoolVector2Array([
+	Vector2.ZERO, Vector2(1,0),
+	Vector2(0,1), Vector2(1,1)
+	])
 # Trigs for each cell
 # |0  1|
 # |2  3|
-var cell = PoolRealArray([
+const cell = PoolRealArray([
 	# Quad 0
 	# 0
 	0,   0,
@@ -81,22 +85,23 @@ func _ready():
 
 # Get value for each trig in cell using marhing squares
 func get_trigs_marching(corners: PoolIntArray):
-	var trigValues = PoolIntArray()
 	# Case 1
 	# |1 1|
 	# |1 1|
 	if corners[0] == corners[1]\
 	and corners[0] == corners[2]\
 	and corners[0] == corners[3]:
-		for _i in range(8):
-			trigValues.append(corners[0])
+		return PoolIntArray([
+			corners[0],corners[0],corners[0],corners[0],
+			corners[0],corners[0],corners[0],corners[0]
+		])
 	# Case 2
 	# |1 2|
 	# |1 1|
 	elif corners[0] == corners[2]\
 	and corners[0] == corners[3]\
 	and corners[0] != corners[1]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[0],corners[0],corners[0],corners[0]
 		])
@@ -106,7 +111,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[1] == corners[2]\
 	and corners[1] == corners[3]\
 	and corners[1] != corners[0]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[1],corners[1],corners[1],
 			corners[1],corners[1],corners[1],corners[1]
 		])
@@ -116,7 +121,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[1]\
 	and corners[0] != corners[2]\
 	and corners[2] == corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[2],corners[2],corners[2],corners[2]
 		])
@@ -126,7 +131,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[2] == corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[2],corners[2],corners[1],
 			corners[2],corners[2],corners[2],corners[2]
 		])
@@ -136,7 +141,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[1]\
 	and corners[0] == corners[2]\
 	and corners[0] != corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[0],corners[0],corners[0],corners[3]
 		])
@@ -146,7 +151,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[2]\
 	and corners[0] != corners[1]\
 	and corners[1] == corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[1],corners[1],
 			corners[0],corners[0],corners[1],corners[1]
 		])
@@ -157,7 +162,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[1]\
 	and corners[0] != corners[3]\
 	and corners[1] != corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[0],corners[0],corners[0],corners[3]
 		])
@@ -168,7 +173,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[1] == corners[2]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[1],corners[0],corners[0],corners[0]
 		])
@@ -178,7 +183,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[1]\
 	and corners[0] == corners[3]\
 	and corners[0] != corners[2]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[2],corners[0],corners[0],corners[0]
 		])
@@ -189,7 +194,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[1] != corners[2]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[2],corners[0],corners[0],corners[0]
 		])
@@ -198,7 +203,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	# |1 3|
 	elif corners[1] == corners[2]\
 	and corners[0] != corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[1],corners[1],corners[1],
 			corners[1],corners[1],corners[1],corners[3]
 		])
@@ -208,7 +213,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[1] == corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[1],corners[1],corners[1],
 			corners[2],corners[1],corners[1],corners[1]
 		])
@@ -219,7 +224,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[2]\
 	and corners[0] != corners[3]\
 	and corners[2] != corners[3]:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[2],corners[0],corners[0],corners[3]
 		])
@@ -227,20 +232,11 @@ func get_trigs_marching(corners: PoolIntArray):
 	# |1 2|
 	# |3 4|
 	else:
-		trigValues.append_array([
+		return PoolIntArray([
 			corners[0],corners[0],corners[1],corners[1],
 			corners[2],corners[2],corners[3],corners[3]
 		])
-	# Return values
-	return trigValues
 		
-# Get value for each trig in cell (no marching squares)
-func get_trigs(value:int):
-	var trigValues = PoolIntArray()
-	for i in range(8):
-		trigValues.append(value)
-	return trigValues
-
 #
 # Terrain Generation
 #
@@ -295,22 +291,18 @@ func generate():
 			# Generate values using marching cubes
 			if marchingSquares and generator.has_method("get_value"):
 				var corners = PoolIntArray()
-				var cornerVectors = PoolVector2Array([
-					cellPos2d, cellPos2d+Vector2(1,0),
-					cellPos2d+Vector2(0,1), cellPos2d+Vector2(1,1)
-				])
 				for v in cornerVectors:
-					corners.append(generator.get_value(v+origin2d))
+					corners.append(generator.get_value(v+cellPos2d+origin2d))
 				trigValues = get_trigs_marching(corners)
 			# Generate values using grid
 			else:
 				var value = 0
 				if generator.has_method("get_value"):
 					value = generator.get_value(cellPos2d+origin2d)
-				trigValues = get_trigs(value)
+				trigValues = [value]
 		
 			# Add triangles
-			for i in int(cell.size()/2):
+			for i in int(cell.size()/2.0):
 				var vert = Vector3(cell[i*2], 0, cell[i*2+1])
 				# Add height
 				if generator.has_method("get_height"):
@@ -318,8 +310,10 @@ func generate():
 					var vertPos2d = vert2d + cellPos2d
 					vert.y = generator.get_height(vertPos2d+origin2d)
 				# Find value
-				var trigIndex = floor(i/3)
-				var trigValue = trigValues[trigIndex]
+				var trigValue = trigValues[0]
+				if marchingSquares:
+					var trigIndex = floor(i/3)
+					trigValue = trigValues[trigIndex]
 				# Calculate UV
 				var uvPos = Vector2.ZERO
 				uvPos.y = floor(trigValue/tilesheetSize.x)
@@ -331,7 +325,7 @@ func generate():
 				st.add_vertex(vertex)
 				faces.append(vertex)
 				
-	# Generate normals and tangents"res://Example/Example.png"
+	# Generate normals and tangents
 	st.generate_normals()
 	st.generate_tangents()
 	
