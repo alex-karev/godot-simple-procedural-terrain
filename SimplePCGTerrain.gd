@@ -75,7 +75,6 @@ const cell = PoolRealArray([
 
 # Connect to generator and start mesh generation
 func _ready():
-	origin2d = Vector2(global_transform.origin.x, global_transform.origin.z)
 	if not generator:
 		generator = get_node(generatorNode)
 	if not mesh:
@@ -262,6 +261,7 @@ func add_collisions(faces: PoolVector3Array):
 # Generate terrain
 func generate():
 	clean()
+	origin2d = Vector2(translation.x, translation.z)
 	var faces = PoolVector3Array()
 	
 	# Create new SurfaceTool
