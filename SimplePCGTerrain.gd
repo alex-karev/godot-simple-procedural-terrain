@@ -265,7 +265,8 @@ func generate():
 	clean()
 	origin2d = Vector2(translation.x, translation.z)
 	var faces = PoolVector3Array()
-	var corners = PoolIntArray()
+	var cornerValues = PoolIntArray()
+	var cornerHeights = PoolRealArray()
 	
 	# Check if generator has value and height functions
 	if generator.has_method("get_value"):
@@ -299,48 +300,54 @@ func generate():
 		
 			# Define trig values
 			var trigValues = PoolIntArray()
-			# Generate values using marching squares
+			# Generating values using marching squares
 			if marchingSquares and generatorHasValueFunc:
-				var cellCorners = PoolIntArray()
-				# Generate values or get read values from memory
-				if cellPos2d == Vector2.ZERO:
+				var cellCornerValues = PoolIntArray()
+				if cellPos2d.x == 0 or cellPos2d.y == 0:
 					for v in cornerVectors:
-						cellCorners.append(generator.get_value(v+cellPos2d+origin2d))
-				elif y == 0:
-					cellCorners.append(corners[(x-1)*4+1])
-					cellCorners.append(generator.get_value(cornerVectors[1]+cellPos2d+origin2d))
-					cellCorners.append(corners[(x-1)*4+3])
-					cellCorners.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
-				elif x == 0:
-					cellCorners.append(corners[(y-1)*newGridSize.x*4+2])
-					cellCorners.append(corners[(y-1)*newGridSize.x*4+3])
-					cellCorners.append(generator.get_value(cornerVectors[2]+cellPos2d+origin2d))
-					cellCorners.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
+						cellCornerValues.append(generator.get_value(v+cellPos2d+origin2d))
 				else:
-					cellCorners.append(corners[(y-1)*newGridSize.x*4+x*4+2])
-					cellCorners.append(corners[(y-1)*newGridSize.x*4+x*4+3])
-					cellCorners.append(corners[y*newGridSize.x*4+(x-1)*4+3])
-					cellCorners.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
-				# Store generated values
-				corners.append_array(cellCorners)
-				# Get trig values
-				trigValues = get_trigs_marching(cellCorners)
-				
-			# Generate values using grid
+						cellCornerValues.append(cornerValues[(y-1)*newGridSize.x*4+x*4+2])
+						cellCornerValues.append(cornerValues[(y-1)*newGridSize.x*4+x*4+3])
+						cellCornerValues.append(cornerValues[y*newGridSize.x*4+(x-1)*4+3])
+						cellCornerValues.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
+				cornerValues.append_array(cellCornerValues)
+				trigValues = get_trigs_marching(cellCornerValues)
+			# Generating values without using marching squares
 			else:
 				var value = 0
 				if generatorHasValueFunc:
 					value = generator.get_value(cellPos2d+origin2d)
 				trigValues = [value]
 		
+			# Generating heights
+			if generatorHasHeightFunc:
+				var cellCornerHeights = PoolRealArray()
+				if cellPos2d.x == 0 or cellPos2d.y == 0:
+					for v in cornerVectors:
+						cellCornerHeights.append(generator.get_height(v+cellPos2d+origin2d))
+				else:
+						cellCornerHeights.append(cornerHeights[(y-1)*newGridSize.x*4+x*4+2])
+						cellCornerHeights.append(cornerHeights[(y-1)*newGridSize.x*4+x*4+3])
+						cellCornerHeights.append(cornerHeights[y*newGridSize.x*4+(x-1)*4+3])
+						cellCornerHeights.append(generator.get_height(cornerVectors[3]+cellPos2d+origin2d))
+				cornerHeights.append_array(cellCornerHeights)
+						
 			# Add triangles
 			for i in int(cell.size()/2.0):
 				var vert = Vector3(cell[i*2], 0, cell[i*2+1])
 				# Add height
 				if generatorHasHeightFunc:
-					var vert2d = Vector2(vert.x,vert.z)
-					var vertPos2d = vert2d + cellPos2d
-					vert.y = generator.get_height(vertPos2d+origin2d)
+					var cellIndex = y*newGridSize.x*4+x*4
+					if vert.x == 0.5 and vert.z == 0.5:
+						vert.y = lerp(cornerHeights[cellIndex],cornerHeights[cellIndex+3],0.5)
+						vert.y = lerp(vert.y,lerp(cornerHeights[cellIndex+1],cornerHeights[cellIndex+2],0.5),0.5)
+					elif vert.x == 0.5:
+						vert.y = lerp(cornerHeights[cellIndex+vert.z*2], cornerHeights[cellIndex+vert.z*2+1], 0.5)
+					elif vert.z == 0.5:
+						vert.y = lerp(cornerHeights[cellIndex+vert.x], cornerHeights[cellIndex+2+vert.x], 0.5)
+					else:
+						vert.y = cornerHeights[cellIndex+vert.z*2+vert.x]
 				# Find value
 				var trigValue = trigValues[0]
 				if marchingSquares:
