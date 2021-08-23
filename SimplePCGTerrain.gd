@@ -21,6 +21,8 @@ export var offset: Vector3 = Vector3(-0.5,0,-0.5)
 var generator
 
 var origin2d: Vector2
+var generatorHasValueFunc:bool = false
+var generatorHasHeightFunc:bool = false
 
 
 
@@ -264,6 +266,12 @@ func generate():
 	origin2d = Vector2(translation.x, translation.z)
 	var faces = PoolVector3Array()
 	
+	# Check if generator has value and height functions
+	if generator.has_method("get_value"):
+		generatorHasValueFunc = true
+	if generator.has_method("get_height"):
+		generatorHasHeightFunc = true
+	
 	# Create new SurfaceTool
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -291,7 +299,7 @@ func generate():
 			# Define trig values
 			var trigValues = PoolIntArray()
 			# Generate values using marching cubes
-			if marchingSquares and generator.has_method("get_value"):
+			if marchingSquares and generatorHasValueFunc:
 				var corners = PoolIntArray()
 				for v in cornerVectors:
 					corners.append(generator.get_value(v+cellPos2d+origin2d))
@@ -299,7 +307,7 @@ func generate():
 			# Generate values using grid
 			else:
 				var value = 0
-				if generator.has_method("get_value"):
+				if generatorHasValueFunc:
 					value = generator.get_value(cellPos2d+origin2d)
 				trigValues = [value]
 		
@@ -307,7 +315,7 @@ func generate():
 			for i in int(cell.size()/2.0):
 				var vert = Vector3(cell[i*2], 0, cell[i*2+1])
 				# Add height
-				if generator.has_method("get_height"):
+				if generatorHasHeightFunc:
 					var vert2d = Vector2(vert.x,vert.z)
 					var vertPos2d = vert2d + cellPos2d
 					vert.y = generator.get_height(vertPos2d+origin2d)
