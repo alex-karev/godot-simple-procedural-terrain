@@ -265,6 +265,7 @@ func generate():
 	clean()
 	origin2d = Vector2(translation.x, translation.z)
 	var faces = PoolVector3Array()
+	var corners = PoolIntArray()
 	
 	# Check if generator has value and height functions
 	if generator.has_method("get_value"):
@@ -298,12 +299,33 @@ func generate():
 		
 			# Define trig values
 			var trigValues = PoolIntArray()
-			# Generate values using marching cubes
+			# Generate values using marching squares
 			if marchingSquares and generatorHasValueFunc:
-				var corners = PoolIntArray()
-				for v in cornerVectors:
-					corners.append(generator.get_value(v+cellPos2d+origin2d))
-				trigValues = get_trigs_marching(corners)
+				var cellCorners = PoolIntArray()
+				# Generate values or get read values from memory
+				if cellPos2d == Vector2.ZERO:
+					for v in cornerVectors:
+						cellCorners.append(generator.get_value(v+cellPos2d+origin2d))
+				elif y == 0:
+					cellCorners.append(corners[(x-1)*4+1])
+					cellCorners.append(generator.get_value(cornerVectors[1]+cellPos2d+origin2d))
+					cellCorners.append(corners[(x-1)*4+3])
+					cellCorners.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
+				elif x == 0:
+					cellCorners.append(corners[(y-1)*newGridSize.x*4+2])
+					cellCorners.append(corners[(y-1)*newGridSize.x*4+3])
+					cellCorners.append(generator.get_value(cornerVectors[2]+cellPos2d+origin2d))
+					cellCorners.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
+				else:
+					cellCorners.append(corners[(y-1)*newGridSize.x*4+x*4+2])
+					cellCorners.append(corners[(y-1)*newGridSize.x*4+x*4+3])
+					cellCorners.append(corners[y*newGridSize.x*4+(x-1)*4+3])
+					cellCorners.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
+				# Store generated values
+				corners.append_array(cellCorners)
+				# Get trig values
+				trigValues = get_trigs_marching(cellCorners)
+				
 			# Generate values using grid
 			else:
 				var value = 0
