@@ -75,5 +75,16 @@ Chunk system can be further extended to place building/props. For this purpose S
 ### Example
 **An example of usage can be found in "Example" directory**
 
+## TODO
+
+- [ ] Add "How it works" section
+- [ ] Fix typos in README
+- [ ] Spawn water
+- [ ] Add support for multiple materials
+- [ ] Optimize marching squares algorithm
+- [ ] ? Add particles
+- [ ] ? Add props scattering
+- [ ] ? Add splatmaps as 3rd generation mode
+
 ## License
 Distributed under the MIT License. See LICENSE for more information
