@@ -1,6 +1,5 @@
 extends Node
 export var noise: OpenSimplexNoise
-var enterKeyPressed = false
 
 # Returns value in position based on noise (value = texture index)
 func get_value(pos):
@@ -17,7 +16,7 @@ func get_value(pos):
 # Returns height in position based on noise
 func get_height(pos):
 	var height = noise.get_noise_2dv(pos)
-	height *= 4
+	height *= 6
 	height *= abs(height)
 	height = stepify(height,0.5)
 	return height
@@ -33,18 +32,36 @@ func randomize_noise():
 func _ready():
 	randomize_noise()
 
+#########
+## END ##
+#########
+
+# Additional enhancements
+
 # Controls
+var enterKeyPressed = false
 func _unhandled_input(event):
 	if event is InputEventKey:
 		if event.scancode == KEY_ENTER:
 			if event.pressed and not enterKeyPressed:
 				randomize_noise()
-				get_node("../PCGTerrain").generate()
+				get_node("../SimplePCGTerrain").clean()
 				enterKeyPressed = true
 			elif !event.pressed and enterKeyPressed:
 				enterKeyPressed = false
-				
-# Enhancements
-func _process(delta):
-	var terrain = get_node("../PCGTerrain")
-	terrain.rotate_y(0.5*delta)
+
+# Debug messages (from SimplePCGTerrain signals)
+export var maxDebugLines: int = 20
+var debugLines = 0
+func chunk_spawned(chunkIndex):
+	get_node("../ChunkDebug").text += "\nChunk spawned: "+str(chunkIndex)
+	debugLines += 1
+	skip_lines()
+
+func chunk_removed(chunkIndex):
+	get_node("../ChunkDebug").text += ". Chunk removed: "+str(chunkIndex)
+
+func skip_lines():
+	if debugLines > maxDebugLines:
+		get_node("../ChunkDebug").lines_skipped += debugLines - maxDebugLines
+		debugLines = maxDebugLines
