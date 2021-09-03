@@ -1,7 +1,7 @@
 # Godot Simple PCG Terrain
 
 A tool that helps to generate 3d terrains using your own generator script.
-It does all the hard job of generating 3d mesh with normals, UVs, collision shapes and chunk system 
+It does all the hard job of generating 3d mesh with normals, UVs, collision shapes, multiple materials and chunk system 
 while you can focus on writing a good generator script
 
 <img src="https://i.imgur.com/zpNxsYH.gif"/>
@@ -11,6 +11,7 @@ while you can focus on writing a good generator script
 * Does **not** generate terrain by itself. Instead, it uses your own **custom generator node**, which makes it easier to focus on logic
 * Implements **chunk system**
 * Uses **tilesheet**
+* Supports **multiple materials**
 * Height and tile index can be defined separately, which enables **multiple biomes** support
 * Has 2 generation modes: with and without using **marching squares**
 * 100% **GDscript**
