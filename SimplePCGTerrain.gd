@@ -299,11 +299,8 @@ func generate_chunk(chunkIndex: Vector2):
 	var cornerValues = PoolIntArray()
 	var cornerHeights = PoolRealArray()
 	
-	# Change grid size (for marching cubes)
-	var newGridSize = gridSize
-	if marchingSquares:
-		newGridSize += Vector2.ONE
-	var origin2d = chunkIndex * newGridSize
+	# Calculate 2d origin
+	var origin2d = chunkIndex * gridSize
 	
 	# Calculate cell size
 	var cellSize = Vector3.ONE
@@ -312,7 +309,7 @@ func generate_chunk(chunkIndex: Vector2):
 	
 	# Create new meshInstance
 	var meshInstance = MeshInstance.new()
-	var translation2d = chunkIndex*newGridSize
+	var translation2d = chunkIndex*gridSize
 	meshInstance.translation.x = translation2d.x
 	meshInstance.translation.z = translation2d.y
 	add_child(meshInstance)
@@ -334,8 +331,8 @@ func generate_chunk(chunkIndex: Vector2):
 				filterValues.append(int(val))
 			
 		# Loop through grid
-		for y in int(newGridSize.y):
-			for x in int(newGridSize.x):
+		for y in int(gridSize.y):
+			for x in int(gridSize.x):
 				var cellPos = Vector3(x,0,y)
 				var cellPos2d = Vector2(x,y)
 			
@@ -348,9 +345,9 @@ func generate_chunk(chunkIndex: Vector2):
 						for v in cornerVectors:
 							cellCornerValues.append(generator.get_value(v+cellPos2d+origin2d))
 					else:
-							cellCornerValues.append(cornerValues[(y-1)*newGridSize.x*4+x*4+2])
-							cellCornerValues.append(cornerValues[(y-1)*newGridSize.x*4+x*4+3])
-							cellCornerValues.append(cornerValues[y*newGridSize.x*4+(x-1)*4+3])
+							cellCornerValues.append(cornerValues[(y-1)*gridSize.x*4+x*4+2])
+							cellCornerValues.append(cornerValues[(y-1)*gridSize.x*4+x*4+3])
+							cellCornerValues.append(cornerValues[y*gridSize.x*4+(x-1)*4+3])
 							cellCornerValues.append(generator.get_value(cornerVectors[3]+cellPos2d+origin2d))
 					cornerValues.append_array(cellCornerValues)
 					trigValues = get_trigs_marching(cellCornerValues)
@@ -368,9 +365,9 @@ func generate_chunk(chunkIndex: Vector2):
 						for v in cornerVectors:
 							cellCornerHeights.append(generator.get_height(v+cellPos2d+origin2d))
 					else:
-							cellCornerHeights.append(cornerHeights[(y-1)*newGridSize.x*4+x*4+2])
-							cellCornerHeights.append(cornerHeights[(y-1)*newGridSize.x*4+x*4+3])
-							cellCornerHeights.append(cornerHeights[y*newGridSize.x*4+(x-1)*4+3])
+							cellCornerHeights.append(cornerHeights[(y-1)*gridSize.x*4+x*4+2])
+							cellCornerHeights.append(cornerHeights[(y-1)*gridSize.x*4+x*4+3])
+							cellCornerHeights.append(cornerHeights[y*gridSize.x*4+(x-1)*4+3])
 							cellCornerHeights.append(generator.get_height(cornerVectors[3]+cellPos2d+origin2d))
 					cornerHeights.append_array(cellCornerHeights)
 							
@@ -395,7 +392,7 @@ func generate_chunk(chunkIndex: Vector2):
 						var vert = Vector3(cell[trig*6+i*2], 0, cell[trig*6+i*2+1])
 						# Add height
 						if generatorHasHeightFunc:
-							var cellIndex = y*newGridSize.x*4+x*4
+							var cellIndex = y*gridSize.x*4+x*4
 							if vert.x == 0.5 and vert.z == 0.5:
 								vert.y = lerp(cornerHeights[cellIndex],cornerHeights[cellIndex+3],0.5)
 								vert.y = lerp(vert.y,lerp(cornerHeights[cellIndex+1],cornerHeights[cellIndex+2],0.5),0.5)
