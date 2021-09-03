@@ -71,7 +71,7 @@ Chunk system can be further extended to place building/props. For this purpose S
 
 | Signal | Arguments | Description |
 | --- | --- | --- |
-| chunk_spawned | chunkIndex: Vector2 | Emited when new chunk is added to the scene |
+| chunk_spawned | chunkIndex: Vector2, chunkNode: MeshInstance | Emited when new chunk is added to the scene |
 | chunk_removed | chunkIndex: Vector2 | Emited when chunk is removed |
 
 

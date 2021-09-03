@@ -3,7 +3,7 @@ extends Spatial
 class_name SimplePCGTerrain
 
 # Signals
-signal chunk_spawned(chunkIndex)
+signal chunk_spawned(chunkIndex, chunkNode)
 signal chunk_removed(chunkIndex)
 
 # Generator
@@ -437,7 +437,7 @@ func generate_chunk(chunkIndex: Vector2):
 	loadedChunks.append(meshInstance)
 
 	# Emit signal
-	emit_signal("chunk_spawned",chunkIndex)
+	emit_signal("chunk_spawned",chunkIndex,meshInstance)
 
 # Remove chunk
 func remove_chunk(chunkIndex: int):

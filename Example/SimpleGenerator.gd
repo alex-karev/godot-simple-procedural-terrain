@@ -53,7 +53,7 @@ func _unhandled_input(event):
 # Debug messages (from SimplePCGTerrain signals)
 export var maxDebugLines: int = 20
 var debugLines = 0
-func chunk_spawned(chunkIndex):
+func chunk_spawned(chunkIndex, chunkNode):
 	get_node("../ChunkDebug").text += "\nChunk spawned: "+str(chunkIndex)
 	debugLines += 1
 	skip_lines()
