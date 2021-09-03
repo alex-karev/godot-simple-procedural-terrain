@@ -41,7 +41,7 @@ If you set playerNode in Inspector and dynamicGeneration is active chunks will b
 | addCollision | bool | Enable/Disable StaticBody generation |
 | materials | Array(Material) | Materials to be used for terrain mesh. **Tilesheet can be attached to it as albedo texture** |
 | materialFilters | Array(int) | Filter type to be applied for each material (all, whitelist or blacklist) |
-| materialValues | Array(String) | List of values to filter each material **(separated bt comma)** |
+| materialValues | Array(String) | List of values for filtering each material **(separated bt comma)** |
 | tilesheetSize | Vector2 | A number of horizontal and verical elements on tilesheet |
 | tileMargin | Vector2 | Margin around each tile (for fixing floating point errors) |
 | offset | Vector3 | An offset to be applied for mesh |
