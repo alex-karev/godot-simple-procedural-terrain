@@ -312,7 +312,7 @@ func generate_chunk(chunkIndex: Vector2):
 	
 	# Create new meshInstance
 	var meshInstance = MeshInstance.new()
-	var translation2d = chunkIndex*gridSize
+	var translation2d = chunkIndex*newGridSize
 	meshInstance.translation.x = translation2d.x
 	meshInstance.translation.z = translation2d.y
 	add_child(meshInstance)
