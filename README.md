@@ -39,9 +39,11 @@ If you set playerNode in Inspector and dynamicGeneration is active chunks will b
 | gridSize | Vector2 | A number of cells which terrain consists of |
 | marchingSquares | bool | Enable/Disable marching squares |
 | addCollision | bool | Enable/Disable StaticBody generation |
+| materials | Array(Material) | Materials to be used for terrain mesh. **Tilesheet can be attached to it as albedo texture** |
+| materialFilters | Array(int) | Filter type to be applied for each material (all, whitelist or blacklist) |
+| materialValues | Array(String) | List of values to filter each material **(separated bt comma)** |
 | tilesheetSize | Vector2 | A number of horizontal and verical elements on tilesheet |
 | tileMargin | Vector2 | Margin around each tile (for fixing floating point errors) |
-| material | Material | A material to be used for terrain mesh. **Tilesheet can be attached to it as albedo texture** |
 | offset | Vector3 | An offset to be applied for mesh |
 
 ### Generator Node
@@ -73,14 +75,21 @@ Chunk system can be further extended to place building/props. For this purpose S
 
 
 ### Example
-**An example of usage can be found in "Example" directory**
+**Examples can be found in "Example" directory**
+
+**Example.tscn shows the basics of usage**
+
+**Example(MultipleMaterials).tscn is a slightly modified Example.tscn to demonstrate how to use multiple materials**
+
+Also, it is recommended to look at SimpleGenerator.gd. This is a simple map generator made for demonstration purpose. 
+It gives a nice example of how "get_height()" and "get_value()" functions in your own generator script could look like.
 
 ## TODO
 
 - [ ] Add "How it works" section
 - [ ] Fix typos in README
 - [ ] Spawn water
-- [ ] Add support for multiple materials
+- [X] Add support for multiple materials
 - [ ] Optimize marching squares algorithm
 - [ ] ? Add particles
 - [ ] ? Add props scattering
