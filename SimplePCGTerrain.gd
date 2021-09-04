@@ -468,7 +468,7 @@ func map_update(_i):
 		# Get player position
 		var playerPosition = translation
 		if player:
-			playerPosition = player.global_transform.origin
+			playerPosition = player.translation
 		# Define current chunk
 		var currentChunk = Vector2.ZERO
 		currentChunk.x = floor(playerPosition.x/gridSize.x)
