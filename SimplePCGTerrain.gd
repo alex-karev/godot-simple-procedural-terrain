@@ -51,6 +51,7 @@ const cornerVectors = PoolVector2Array([
 	Vector2.ZERO, Vector2(1,0),
 	Vector2(0,1), Vector2(1,1)
 	])
+	
 # Trigs for each cell
 # |0  1|
 # |2  3|
@@ -291,7 +292,9 @@ func clean():
 		thread.wait_to_finish()
 		thread = Thread.new()
 		thread.start(self, "map_update", 0)
-		
+
+# Generate new surface
+
 
 # Generate chunk
 func generate_chunk(chunkIndex: Vector2):
@@ -309,10 +312,9 @@ func generate_chunk(chunkIndex: Vector2):
 	
 	# Create new meshInstance
 	var meshInstance = MeshInstance.new()
-	var translation2d = chunkIndex*gridSize
-	meshInstance.translation.x = translation2d.x
-	meshInstance.translation.z = translation2d.y
-	add_child(meshInstance)
+	meshInstance.translation.x = origin2d.x
+	meshInstance.translation.z = origin2d.y
+	call_deferred("add_child", meshInstance)
 
 	# Generate surfaces
 	for surfaceIndex in range(materials.size()):
@@ -429,8 +431,8 @@ func generate_chunk(chunkIndex: Vector2):
 		var collisionShape = CollisionShape.new()
 		collisionShape.shape = concaveShape
 		var staticBody = StaticBody.new()
-		meshInstance.add_child(staticBody)
 		staticBody.add_child(collisionShape)
+		meshInstance.call_deferred("add_child", staticBody)
 	
 	# Add to loaded
 	loadedChunkPositions.append(chunkIndex)
@@ -445,7 +447,7 @@ func remove_chunk(chunkIndex: int):
 	var chunk = loadedChunks[chunkIndex]
 	for child in chunk.get_children():
 		child.queue_free()
-	chunk.queue_free()
+	chunk.call_deferred("queue_free")
 	# Emit signal
 	emit_signal("chunk_removed",loadedChunkPositions[chunkIndex])
 	# Remove from array
