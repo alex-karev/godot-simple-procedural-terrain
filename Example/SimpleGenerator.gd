@@ -1,5 +1,5 @@
 extends Node
-export var noise: OpenSimplexNoise
+@export var noise: FastNoiseLite
 
 # Returns value in position based on noise (value = texture index)
 func get_value(pos):
@@ -18,7 +18,7 @@ func get_height(pos):
 	var height = noise.get_noise_2dv(pos)
 	height *= 6
 	height *= abs(height)
-	height = stepify(height,0.5)
+	height = int(height/0.5)
 	return height
 
 
@@ -42,7 +42,7 @@ func _ready():
 var enterKeyPressed = false
 func _unhandled_input(event):
 	if event is InputEventKey:
-		if event.scancode == KEY_ENTER:
+		if event.keycode == KEY_ENTER:
 			if event.pressed and not enterKeyPressed:
 				randomize_noise()
 				get_node("../SimplePCGTerrain").clean()
@@ -51,7 +51,7 @@ func _unhandled_input(event):
 				enterKeyPressed = false
 
 # Debug messages (from SimplePCGTerrain signals)
-export var maxDebugLines: int = 20
+@export var maxDebugLines: int = 20
 var debugLines = 0
 func chunk_spawned(chunkIndex, chunkNode):
 	get_node("../ChunkDebug").text += "\nChunk spawned: "+str(chunkIndex)
