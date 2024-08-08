@@ -1,5 +1,4 @@
 # Procedural 3d terrain with tilemaps
-@tool
 extends Node3D
 class_name SimplePCGTerrain
 
@@ -39,6 +38,8 @@ var generatorHasHeightFunc:bool = false
 var player
 
 # Chunk loading
+var chunkLoadQueue = []
+var chunkRemoveQueue = []
 var loadedChunks = []
 var loadedChunkPositions = PackedVector2Array([])
 
@@ -46,6 +47,8 @@ var loadedChunkPositions = PackedVector2Array([])
 var thread
 var threadTime = 0.0
 var threadActive = true
+var mutex: Mutex
+var playerPosition: Vector3 = Vector3.ZERO
 
 # Quad corners
 var cornerVectors = PackedVector2Array([
@@ -107,12 +110,14 @@ func _ready():
 			generatorHasValueFunc = true
 		if generator.has_method("get_height"):
 			generatorHasHeightFunc = true
-	# Find player
+	# Find player node
 	if playerNode:
 		player = get_node(playerNode)
+	# Create mutex
+	mutex = Mutex.new()
 	# Create thread
 	thread = Thread.new()
-	thread.start(map_update.bind([0]))
+	thread.start(map_update.bind(0))
 
 #
 # Utility Functions
@@ -286,13 +291,17 @@ func clean():
 	# Empty arrays
 	loadedChunkPositions = PackedVector2Array([])
 	loadedChunks = []
+	mutex.lock()
+	chunkLoadQueue = []
+	chunkRemoveQueue = []
+	mutex.unlock()
 	# Restart thread
 	threadTime = 0
 	if not threadActive:
 		threadActive = true
 		thread.wait_to_finish()
 		thread = Thread.new()
-		thread.start(map_update.bind([0]))
+		thread.start(map_update.bind(0))
 
 # Generate new surface
 
@@ -310,14 +319,9 @@ func generate_chunk(chunkIndex: Vector2):
 	var cellSize = Vector3.ONE
 	var textureSize = Vector2.ONE/tilesheetSize
 	var tileSize = Vector2.ONE - tileMargin
-	
-	# Create new meshInstance
-	var meshInstance = MeshInstance3D.new()
-	meshInstance.position.x = origin2d.x
-	meshInstance.position.z = origin2d.y
-	call_deferred("add_child", meshInstance)
 
 	# Generate surfaces
+	var surfaces = []
 	for surfaceIndex in range(materials.size()):
 		# Create new SurfaceTool
 		var st = SurfaceTool.new()
@@ -420,27 +424,19 @@ func generate_chunk(chunkIndex: Vector2):
 		st.generate_normals()
 		st.generate_tangents()
 		# Commit
-		if surfaceIndex == 0:
-			meshInstance.mesh = st.commit()
-		else:
-			st.commit(meshInstance.mesh)
+		surfaces.append(st.commit())
 		
 	# Add collision
+	var collisionShape
 	if addCollision:
 		var concaveShape = ConcavePolygonShape3D.new()
 		concaveShape.set_faces(faces)
-		var collisionShape = CollisionShape3D.new()
+		collisionShape = CollisionShape3D.new()
 		collisionShape.shape = concaveShape
-		var staticBody = StaticBody3D.new()
-		staticBody.add_child(collisionShape)
-		meshInstance.call_deferred("add_child", staticBody)
-	
-	# Add to loaded
-	loadedChunkPositions.append(chunkIndex)
-	loadedChunks.append(meshInstance)
 
-	# Emit signal
-	emit_signal("chunk_spawned",chunkIndex,meshInstance)
+	mutex.lock()
+	chunkLoadQueue.append([surfaces, collisionShape, origin2d, chunkIndex])
+	mutex.unlock()
 
 # Remove chunk
 func remove_chunk(chunkIndex: int):
@@ -452,8 +448,8 @@ func remove_chunk(chunkIndex: int):
 	# Emit signal
 	emit_signal("chunk_removed",loadedChunkPositions[chunkIndex])
 	# Remove from array
-	loadedChunks.remove(chunkIndex)
-	loadedChunkPositions.remove(chunkIndex)
+	loadedChunks.remove_at(chunkIndex)
+	loadedChunkPositions.remove_at(chunkIndex)
 	
 
 #
@@ -466,14 +462,13 @@ func map_update(_i):
 		if threadTime < mapUpdateTime:
 			continue
 		threadTime = 0.0
-		# Get player position
-		var playerPosition = position
-		if player:
-			playerPosition = player.position
 		# Define current chunk
 		var currentChunk = Vector2.ZERO
-		currentChunk.x = floor(playerPosition.x/gridSize.x)
-		currentChunk.y = floor(playerPosition.z/gridSize.y)
+		mutex.lock()
+		var _playerPosition = playerPosition
+		mutex.unlock()
+		currentChunk.x = floor(_playerPosition.x/gridSize.x)
+		currentChunk.y = floor(_playerPosition.z/gridSize.y)
 		# Define needed chunks
 		var neededChunks = PackedVector2Array([])
 		neededChunks.append(currentChunk)
@@ -494,7 +489,9 @@ func map_update(_i):
 		for i in loadedChunkPositions.size():
 			var chunkPos = loadedChunkPositions[i]
 			if not chunkPos in neededChunks:
-				remove_chunk(i)
+				mutex.lock()
+				chunkRemoveQueue.append(i)
+				mutex.unlock()
 				break
 		# Finish thread if dynamicGeneration is disabled and generation is done
 		if not dynamicGeneration:
@@ -504,7 +501,39 @@ func map_update(_i):
 # Increase threadTime
 func _process(delta):
 	threadTime += delta
-
+	mutex.lock()
+	playerPosition = position
+	if player:
+		playerPosition = player.position
+	if chunkLoadQueue.size() > 0:
+		for chunk in chunkLoadQueue:
+			var meshInstance = MeshInstance3D.new()
+			meshInstance.position.x = chunk[2].x
+			meshInstance.position.z = chunk[2].y
+			add_child(meshInstance)
+			var surfaceIndex = 0
+			for surface in chunk[0]:
+				if surfaceIndex == 0:
+					meshInstance.mesh = surface
+				#else:
+					#st.commit(meshInstance.mesh)
+				surfaceIndex += 1
+			if chunk[1]:
+				var staticBody = StaticBody3D.new()
+				staticBody.add_child(chunk[1])
+				meshInstance.add_child(staticBody)
+			# Add to loaded
+			loadedChunkPositions.append(chunk[3])
+			loadedChunks.append(meshInstance)
+			emit_signal("chunk_spawned", chunk[3], meshInstance)
+		chunkLoadQueue = []
+	if chunkRemoveQueue:
+		chunkRemoveQueue.sort()
+		for chunkIndex in chunkRemoveQueue:
+			remove_chunk(chunkIndex)
+		chunkRemoveQueue = []
+	mutex.unlock()
+	
 # Close thread on exit
 func _exit_tree():
 	threadActive = false
