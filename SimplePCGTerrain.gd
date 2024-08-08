@@ -1,5 +1,6 @@
 # Procedural 3d terrain with tilemaps
-extends Spatial
+@tool
+extends Node3D
 class_name SimplePCGTerrain
 
 # Signals
@@ -7,29 +8,29 @@ signal chunk_spawned(chunkIndex, chunkNode)
 signal chunk_removed(chunkIndex)
 
 # Generator
-export(NodePath) var generatorNode
-export var dynamicGeneration:bool = true
-export(NodePath) var playerNode
+@export var generatorNode: NodePath
+@export var dynamicGeneration: bool = true
+@export var playerNode: NodePath
 # Chunk System
-export var chunkLoadRadius: int = 0
+@export var chunkLoadRadius: int = 0
 #export var chunkSize: Vector2 = Vector2(50,50)
-export var mapUpdateTime: float = 0.1
+@export var mapUpdateTime: float = 0.1
 # Grid size (for 1 chunk)
-export var gridSize: Vector2 = Vector2(51,51)
+@export var gridSize: Vector2 = Vector2(51,51)
 # Enabling/Disabling marching squares
-export var marchingSquares: bool = true
+@export var marchingSquares: bool = true
 # Physics
-export var addCollision: bool = true
+@export var addCollision: bool = true
 # Material
-export(Array, Material) var materials
+@export var materials: Array[Material]
 enum {ALL, WHITELIST, BLACKLIST}
-export(Array, int, "all", "whitelist", "blacklist") var materialFilters
-export(Array, String) var materialValues
+@export var materialFilters: Array[int]
+@export var materialValues: Array[String]
 # Tilesheet
-export var tilesheetSize: Vector2 = Vector2(2,2)
-export var tileMargin: Vector2 = Vector2(0.01,0.01)
+@export var tilesheetSize: Vector2 = Vector2(2,2)
+@export var tileMargin: Vector2 = Vector2(0.01,0.01)
 # Additional
-export var offset: Vector3 = Vector3(-0.5,0,-0.5)
+@export var offset: Vector3 = Vector3(-0.5,0,-0.5)
 
 # Generator
 var generator
@@ -39,7 +40,7 @@ var player
 
 # Chunk loading
 var loadedChunks = []
-var loadedChunkPositions = PoolVector2Array([])
+var loadedChunkPositions = PackedVector2Array([])
 
 # Second thread
 var thread
@@ -47,15 +48,15 @@ var threadTime = 0.0
 var threadActive = true
 
 # Quad corners
-const cornerVectors = PoolVector2Array([
+var cornerVectors = PackedVector2Array([
 	Vector2.ZERO, Vector2(1,0),
 	Vector2(0,1), Vector2(1,1)
-	])
+])
 	
 # Trigs for each cell
 # |0  1|
 # |2  3|
-const cell = PoolRealArray([
+var cell = PackedFloat64Array([
 	# Quad 0
 	# 0
 	0,   0,
@@ -111,21 +112,21 @@ func _ready():
 		player = get_node(playerNode)
 	# Create thread
 	thread = Thread.new()
-	thread.start(self, "map_update", 0)
+	thread.start(map_update.bind([0]))
 
 #
 # Utility Functions
 #
 
 # Get value for each trig in cell using marhing squares
-func get_trigs_marching(corners: PoolIntArray):
+func get_trigs_marching(corners: PackedInt64Array):
 	# Case 1
 	# |1 1|
 	# |1 1|
 	if corners[0] == corners[1]\
 	and corners[0] == corners[2]\
 	and corners[0] == corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[0],corners[0],corners[0],corners[0]
 		])
@@ -135,7 +136,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[2]\
 	and corners[0] == corners[3]\
 	and corners[0] != corners[1]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[0],corners[0],corners[0],corners[0]
 		])
@@ -145,7 +146,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[1] == corners[2]\
 	and corners[1] == corners[3]\
 	and corners[1] != corners[0]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[1],corners[1],corners[1],
 			corners[1],corners[1],corners[1],corners[1]
 		])
@@ -155,7 +156,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[1]\
 	and corners[0] != corners[2]\
 	and corners[2] == corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[2],corners[2],corners[2],corners[2]
 		])
@@ -165,7 +166,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[2] == corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[2],corners[2],corners[1],
 			corners[2],corners[2],corners[2],corners[2]
 		])
@@ -175,7 +176,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[1]\
 	and corners[0] == corners[2]\
 	and corners[0] != corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[0],corners[0],corners[0],corners[3]
 		])
@@ -185,7 +186,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[2]\
 	and corners[0] != corners[1]\
 	and corners[1] == corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[1],corners[1],
 			corners[0],corners[0],corners[1],corners[1]
 		])
@@ -196,7 +197,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[1]\
 	and corners[0] != corners[3]\
 	and corners[1] != corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[0],corners[0],corners[0],corners[3]
 		])
@@ -207,7 +208,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[1] == corners[2]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[1],corners[0],corners[0],corners[0]
 		])
@@ -217,7 +218,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] == corners[1]\
 	and corners[0] == corners[3]\
 	and corners[0] != corners[2]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[2],corners[0],corners[0],corners[0]
 		])
@@ -228,7 +229,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[1] != corners[2]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[1],
 			corners[2],corners[0],corners[0],corners[0]
 		])
@@ -237,7 +238,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	# |1 3|
 	elif corners[1] == corners[2]\
 	and corners[0] != corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[1],corners[1],corners[1],
 			corners[1],corners[1],corners[1],corners[3]
 		])
@@ -247,7 +248,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	elif corners[0] != corners[1]\
 	and corners[0] != corners[2]\
 	and corners[1] == corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[1],corners[1],corners[1],
 			corners[2],corners[1],corners[1],corners[1]
 		])
@@ -258,7 +259,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	and corners[0] != corners[2]\
 	and corners[0] != corners[3]\
 	and corners[2] != corners[3]:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[0],corners[0],
 			corners[2],corners[0],corners[0],corners[3]
 		])
@@ -266,7 +267,7 @@ func get_trigs_marching(corners: PoolIntArray):
 	# |1 2|
 	# |3 4|
 	else:
-		return PoolIntArray([
+		return PackedInt64Array([
 			corners[0],corners[0],corners[1],corners[1],
 			corners[2],corners[2],corners[3],corners[3]
 		])
@@ -283,7 +284,7 @@ func clean():
 			subChild.queue_free()
 		child.queue_free()
 	# Empty arrays
-	loadedChunkPositions = PoolVector2Array([])
+	loadedChunkPositions = PackedVector2Array([])
 	loadedChunks = []
 	# Restart thread
 	threadTime = 0
@@ -291,16 +292,16 @@ func clean():
 		threadActive = true
 		thread.wait_to_finish()
 		thread = Thread.new()
-		thread.start(self, "map_update", 0)
+		thread.start(map_update.bind([0]))
 
 # Generate new surface
 
 
 # Generate chunk
 func generate_chunk(chunkIndex: Vector2):
-	var faces = PoolVector3Array()
-	var cornerValues = PoolIntArray()
-	var cornerHeights = PoolRealArray()
+	var faces = PackedVector3Array()
+	var cornerValues = PackedInt64Array()
+	var cornerHeights = PackedInt64Array()
 	
 	# Calculate 2d origin
 	var origin2d = chunkIndex * gridSize
@@ -311,9 +312,9 @@ func generate_chunk(chunkIndex: Vector2):
 	var tileSize = Vector2.ONE - tileMargin
 	
 	# Create new meshInstance
-	var meshInstance = MeshInstance.new()
-	meshInstance.translation.x = origin2d.x
-	meshInstance.translation.z = origin2d.y
+	var meshInstance = MeshInstance3D.new()
+	meshInstance.position.x = origin2d.x
+	meshInstance.position.z = origin2d.y
 	call_deferred("add_child", meshInstance)
 
 	# Generate surfaces
@@ -339,10 +340,10 @@ func generate_chunk(chunkIndex: Vector2):
 				var cellPos2d = Vector2(x,y)
 			
 				# Define trig values
-				var trigValues = PoolIntArray()
+				var trigValues = PackedInt64Array()
 				# Generating values using marching squares
 				if marchingSquares and generatorHasValueFunc:
-					var cellCornerValues = PoolIntArray()
+					var cellCornerValues = PackedInt64Array()
 					if cellPos2d.x == 0 or cellPos2d.y == 0:
 						for v in cornerVectors:
 							cellCornerValues.append(generator.get_value(v+cellPos2d+origin2d))
@@ -362,7 +363,7 @@ func generate_chunk(chunkIndex: Vector2):
 			
 				# Generating heights
 				if generatorHasHeightFunc:
-					var cellCornerHeights = PoolRealArray()
+					var cellCornerHeights = PackedInt64Array()
 					if cellPos2d.x == 0 or cellPos2d.y == 0:
 						for v in cornerVectors:
 							cellCornerHeights.append(generator.get_height(v+cellPos2d+origin2d))
@@ -410,7 +411,7 @@ func generate_chunk(chunkIndex: Vector2):
 						uvPos.x = trigValue - uvPos.y*tilesheetSize.x
 						uvPos += tileMargin/2
 						# Add vertex
-						st.add_uv(Vector2(vert.x,vert.z)*tileSize*textureSize+uvPos*textureSize)
+						st.set_uv(Vector2(vert.x,vert.z)*tileSize*textureSize+uvPos*textureSize)
 						var vertex = (vert+cellPos+offset)*cellSize
 						st.add_vertex(vertex)
 						faces.append(vertex)
@@ -426,11 +427,11 @@ func generate_chunk(chunkIndex: Vector2):
 		
 	# Add collision
 	if addCollision:
-		var concaveShape = ConcavePolygonShape.new()
+		var concaveShape = ConcavePolygonShape3D.new()
 		concaveShape.set_faces(faces)
-		var collisionShape = CollisionShape.new()
+		var collisionShape = CollisionShape3D.new()
 		collisionShape.shape = concaveShape
-		var staticBody = StaticBody.new()
+		var staticBody = StaticBody3D.new()
 		staticBody.add_child(collisionShape)
 		meshInstance.call_deferred("add_child", staticBody)
 	
@@ -466,15 +467,15 @@ func map_update(_i):
 			continue
 		threadTime = 0.0
 		# Get player position
-		var playerPosition = translation
+		var playerPosition = position
 		if player:
-			playerPosition = player.translation
+			playerPosition = player.position
 		# Define current chunk
 		var currentChunk = Vector2.ZERO
 		currentChunk.x = floor(playerPosition.x/gridSize.x)
 		currentChunk.y = floor(playerPosition.z/gridSize.y)
 		# Define needed chunks
-		var neededChunks = PoolVector2Array([])
+		var neededChunks = PackedVector2Array([])
 		neededChunks.append(currentChunk)
 		if chunkLoadRadius != 0:
 			for ring in range(1, chunkLoadRadius+1):
