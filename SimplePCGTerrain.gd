@@ -310,7 +310,7 @@ func clean():
 func generate_chunk(chunkIndex: Vector2):
 	var faces = PackedVector3Array()
 	var cornerValues = PackedInt64Array()
-	var cornerHeights = PackedInt64Array()
+	var cornerHeights = PackedFloat64Array()
 	
 	# Calculate 2d origin
 	var origin2d = chunkIndex * gridSize
@@ -367,7 +367,7 @@ func generate_chunk(chunkIndex: Vector2):
 			
 				# Generating heights
 				if generatorHasHeightFunc:
-					var cellCornerHeights = PackedInt64Array()
+					var cellCornerHeights = PackedFloat64Array()
 					if cellPos2d.x == 0 or cellPos2d.y == 0:
 						for v in cornerVectors:
 							cellCornerHeights.append(generator.get_height(v+cellPos2d+origin2d))
